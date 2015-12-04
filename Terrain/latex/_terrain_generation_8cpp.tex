@@ -1,0 +1,162 @@
+\hypertarget{_terrain_generation_8cpp}{}\section{Terrain/\+Terrain\+Generation.cpp File Reference}
+\label{_terrain_generation_8cpp}\index{Terrain/\+Terrain\+Generation.\+cpp@{Terrain/\+Terrain\+Generation.\+cpp}}
+{\ttfamily \#include $<$iostream$>$}\\*
+{\ttfamily \#include $<$fstream$>$}\\*
+{\ttfamily \#include $<$glm/glm.\+hpp$>$}\\*
+{\ttfamily \#include $<$glm/gtc/matrix\+\_\+transform.\+hpp$>$}\\*
+{\ttfamily \#include $<$glm/gtc/type\+\_\+ptr.\+hpp$>$}\\*
+{\ttfamily \#include $<$G\+L/glew.\+h$>$}\\*
+{\ttfamily \#include $<$G\+L/freeglut.\+h$>$}\\*
+{\ttfamily \#include $<$G\+L/glext.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}Diamond\+Square.\+h\char`\"{}}\\*
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_vertex}{Vertex}
+\item 
+struct \hyperlink{struct_matrix4x4}{Matrix4x4}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{_terrain_generation_8cpp_a38acb51b2a63fccbafac9c0afca0c1b9}{buffer} \{ \hyperlink{_terrain_generation_8cpp_a38acb51b2a63fccbafac9c0afca0c1b9a7daacc042690be1b65822f409ebbbd50}{S\+Q\+U\+A\+R\+E\+\_\+\+V\+E\+R\+T\+I\+C\+E\+S}
+ \}
+\item 
+enum \hyperlink{_terrain_generation_8cpp_ad03408aabe16bb53c780fae6cf3910f9}{object} \{ \hyperlink{_terrain_generation_8cpp_ad03408aabe16bb53c780fae6cf3910f9a4233fbf0cafb86abcee94b38d769fc59}{S\+Q\+U\+A\+R\+E}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+char $\ast$ \hyperlink{_terrain_generation_8cpp_a92f856a5e82a52c8e15f81121c9cb14c}{read\+Text\+File} (char $\ast$a\+Text\+File)
+\item 
+void \hyperlink{_terrain_generation_8cpp_a38b8f27350441723106bcee649b39c65}{perspective\+G\+L} (G\+Ldouble fov\+Y, G\+Ldouble aspect, G\+Ldouble z\+Near, G\+Ldouble z\+Far)
+\item 
+void \hyperlink{_terrain_generation_8cpp_a7dfd9b79bc5a37d7df40207afbc5431f}{setup} (void)
+\item 
+void \hyperlink{_terrain_generation_8cpp_a8dd4de5339b432ff73fef4690e552da2}{draw\+Scene} (void)
+\item 
+void \hyperlink{_terrain_generation_8cpp_a72868655f1024742a57e494c6ee6a0e0}{resize} (int w, int h)
+\item 
+void \hyperlink{_terrain_generation_8cpp_a416be9329d14062a6577e8847445a0f1}{key\+Input} (unsigned char key, int x, int y)
+\item 
+int \hyperlink{_terrain_generation_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+const int \hyperlink{_terrain_generation_8cpp_aff382c6e1fd684f8a6c1c577e5196e6c}{M\+A\+P\+\_\+\+S\+I\+Z\+E} = 5
+\item 
+const int \hyperlink{_terrain_generation_8cpp_a3482785bd2a4c8b307f9e0b6f54e2c36}{S\+C\+R\+E\+E\+N\+\_\+\+W\+I\+D\+T\+H} = 500
+\item 
+const int \hyperlink{_terrain_generation_8cpp_ab454541ae58bcf6555e8d723b1eb95e7}{S\+C\+R\+E\+E\+N\+\_\+\+H\+E\+I\+G\+H\+T} = 500
+\item 
+const int \hyperlink{_terrain_generation_8cpp_a86b9a7e2ca470539126fd9569d3ee2ce}{num\+Strips\+Required} = \hyperlink{_terrain_generation_8cpp_aff382c6e1fd684f8a6c1c577e5196e6c}{M\+A\+P\+\_\+\+S\+I\+Z\+E} -\/ 1
+\item 
+const int \hyperlink{_terrain_generation_8cpp_a89ebef0abaf7d22e9a9aa1a889dcc075}{vertices\+Per\+Strip} = 2 $\ast$ \hyperlink{_terrain_generation_8cpp_aff382c6e1fd684f8a6c1c577e5196e6c}{M\+A\+P\+\_\+\+S\+I\+Z\+E}
+\item 
+unsigned int \hyperlink{_terrain_generation_8cpp_a733837e7ed371a1af60b0784fdcca9fc}{terrain\+Index\+Data} \mbox{[}\hyperlink{_terrain_generation_8cpp_a86b9a7e2ca470539126fd9569d3ee2ce}{num\+Strips\+Required}\mbox{]}\mbox{[}\hyperlink{_terrain_generation_8cpp_a89ebef0abaf7d22e9a9aa1a889dcc075}{vertices\+Per\+Strip}\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{_terrain_generation_8cpp_a38acb51b2a63fccbafac9c0afca0c1b9}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!buffer@{buffer}}
+\index{buffer@{buffer}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{buffer}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf buffer}}\label{_terrain_generation_8cpp_a38acb51b2a63fccbafac9c0afca0c1b9}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{S\+Q\+U\+A\+R\+E\+\_\+\+V\+E\+R\+T\+I\+C\+E\+S@{S\+Q\+U\+A\+R\+E\+\_\+\+V\+E\+R\+T\+I\+C\+E\+S}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!S\+Q\+U\+A\+R\+E\+\_\+\+V\+E\+R\+T\+I\+C\+E\+S@{S\+Q\+U\+A\+R\+E\+\_\+\+V\+E\+R\+T\+I\+C\+E\+S}}\item[{\em 
+\hypertarget{_terrain_generation_8cpp_a38acb51b2a63fccbafac9c0afca0c1b9a7daacc042690be1b65822f409ebbbd50}{}S\+Q\+U\+A\+R\+E\+\_\+\+V\+E\+R\+T\+I\+C\+E\+S\label{_terrain_generation_8cpp_a38acb51b2a63fccbafac9c0afca0c1b9a7daacc042690be1b65822f409ebbbd50}
+}]\end{description}
+\end{Desc}
+\hypertarget{_terrain_generation_8cpp_ad03408aabe16bb53c780fae6cf3910f9}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!object@{object}}
+\index{object@{object}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{object}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf object}}\label{_terrain_generation_8cpp_ad03408aabe16bb53c780fae6cf3910f9}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{S\+Q\+U\+A\+R\+E@{S\+Q\+U\+A\+R\+E}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!S\+Q\+U\+A\+R\+E@{S\+Q\+U\+A\+R\+E}}\item[{\em 
+\hypertarget{_terrain_generation_8cpp_ad03408aabe16bb53c780fae6cf3910f9a4233fbf0cafb86abcee94b38d769fc59}{}S\+Q\+U\+A\+R\+E\label{_terrain_generation_8cpp_ad03408aabe16bb53c780fae6cf3910f9a4233fbf0cafb86abcee94b38d769fc59}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\hypertarget{_terrain_generation_8cpp_a8dd4de5339b432ff73fef4690e552da2}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!draw\+Scene@{draw\+Scene}}
+\index{draw\+Scene@{draw\+Scene}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{draw\+Scene(void)}]{\setlength{\rightskip}{0pt plus 5cm}void draw\+Scene (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\label{_terrain_generation_8cpp_a8dd4de5339b432ff73fef4690e552da2}
+\hypertarget{_terrain_generation_8cpp_a416be9329d14062a6577e8847445a0f1}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!key\+Input@{key\+Input}}
+\index{key\+Input@{key\+Input}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{key\+Input(unsigned char key, int x, int y)}]{\setlength{\rightskip}{0pt plus 5cm}void key\+Input (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{key, }
+\item[{int}]{x, }
+\item[{int}]{y}
+\end{DoxyParamCaption}
+)}\label{_terrain_generation_8cpp_a416be9329d14062a6577e8847445a0f1}
+\hypertarget{_terrain_generation_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!main@{main}}
+\index{main@{main}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{main(int argc, char $\ast$argv[])}]{\setlength{\rightskip}{0pt plus 5cm}int main (
+\begin{DoxyParamCaption}
+\item[{int}]{argc, }
+\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]}}
+\end{DoxyParamCaption}
+)}\label{_terrain_generation_8cpp_a0ddf1224851353fc92bfbff6f499fa97}
+\hypertarget{_terrain_generation_8cpp_a38b8f27350441723106bcee649b39c65}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!perspective\+G\+L@{perspective\+G\+L}}
+\index{perspective\+G\+L@{perspective\+G\+L}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{perspective\+G\+L(\+G\+Ldouble fov\+Y, G\+Ldouble aspect, G\+Ldouble z\+Near, G\+Ldouble z\+Far)}]{\setlength{\rightskip}{0pt plus 5cm}void perspective\+G\+L (
+\begin{DoxyParamCaption}
+\item[{G\+Ldouble}]{fov\+Y, }
+\item[{G\+Ldouble}]{aspect, }
+\item[{G\+Ldouble}]{z\+Near, }
+\item[{G\+Ldouble}]{z\+Far}
+\end{DoxyParamCaption}
+)}\label{_terrain_generation_8cpp_a38b8f27350441723106bcee649b39c65}
+\hypertarget{_terrain_generation_8cpp_a92f856a5e82a52c8e15f81121c9cb14c}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!read\+Text\+File@{read\+Text\+File}}
+\index{read\+Text\+File@{read\+Text\+File}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{read\+Text\+File(char $\ast$a\+Text\+File)}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ read\+Text\+File (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{a\+Text\+File}
+\end{DoxyParamCaption}
+)}\label{_terrain_generation_8cpp_a92f856a5e82a52c8e15f81121c9cb14c}
+\hypertarget{_terrain_generation_8cpp_a72868655f1024742a57e494c6ee6a0e0}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!resize@{resize}}
+\index{resize@{resize}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{resize(int w, int h)}]{\setlength{\rightskip}{0pt plus 5cm}void resize (
+\begin{DoxyParamCaption}
+\item[{int}]{w, }
+\item[{int}]{h}
+\end{DoxyParamCaption}
+)}\label{_terrain_generation_8cpp_a72868655f1024742a57e494c6ee6a0e0}
+\hypertarget{_terrain_generation_8cpp_a7dfd9b79bc5a37d7df40207afbc5431f}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!setup@{setup}}
+\index{setup@{setup}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{setup(void)}]{\setlength{\rightskip}{0pt plus 5cm}void setup (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\label{_terrain_generation_8cpp_a7dfd9b79bc5a37d7df40207afbc5431f}
+
+
+\subsection{Variable Documentation}
+\hypertarget{_terrain_generation_8cpp_aff382c6e1fd684f8a6c1c577e5196e6c}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!M\+A\+P\+\_\+\+S\+I\+Z\+E@{M\+A\+P\+\_\+\+S\+I\+Z\+E}}
+\index{M\+A\+P\+\_\+\+S\+I\+Z\+E@{M\+A\+P\+\_\+\+S\+I\+Z\+E}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{M\+A\+P\+\_\+\+S\+I\+Z\+E}]{\setlength{\rightskip}{0pt plus 5cm}const int M\+A\+P\+\_\+\+S\+I\+Z\+E = 5}\label{_terrain_generation_8cpp_aff382c6e1fd684f8a6c1c577e5196e6c}
+\hypertarget{_terrain_generation_8cpp_a86b9a7e2ca470539126fd9569d3ee2ce}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!num\+Strips\+Required@{num\+Strips\+Required}}
+\index{num\+Strips\+Required@{num\+Strips\+Required}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{num\+Strips\+Required}]{\setlength{\rightskip}{0pt plus 5cm}const int num\+Strips\+Required = {\bf M\+A\+P\+\_\+\+S\+I\+Z\+E} -\/ 1}\label{_terrain_generation_8cpp_a86b9a7e2ca470539126fd9569d3ee2ce}
+\hypertarget{_terrain_generation_8cpp_ab454541ae58bcf6555e8d723b1eb95e7}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!S\+C\+R\+E\+E\+N\+\_\+\+H\+E\+I\+G\+H\+T@{S\+C\+R\+E\+E\+N\+\_\+\+H\+E\+I\+G\+H\+T}}
+\index{S\+C\+R\+E\+E\+N\+\_\+\+H\+E\+I\+G\+H\+T@{S\+C\+R\+E\+E\+N\+\_\+\+H\+E\+I\+G\+H\+T}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{S\+C\+R\+E\+E\+N\+\_\+\+H\+E\+I\+G\+H\+T}]{\setlength{\rightskip}{0pt plus 5cm}const int S\+C\+R\+E\+E\+N\+\_\+\+H\+E\+I\+G\+H\+T = 500}\label{_terrain_generation_8cpp_ab454541ae58bcf6555e8d723b1eb95e7}
+\hypertarget{_terrain_generation_8cpp_a3482785bd2a4c8b307f9e0b6f54e2c36}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!S\+C\+R\+E\+E\+N\+\_\+\+W\+I\+D\+T\+H@{S\+C\+R\+E\+E\+N\+\_\+\+W\+I\+D\+T\+H}}
+\index{S\+C\+R\+E\+E\+N\+\_\+\+W\+I\+D\+T\+H@{S\+C\+R\+E\+E\+N\+\_\+\+W\+I\+D\+T\+H}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{S\+C\+R\+E\+E\+N\+\_\+\+W\+I\+D\+T\+H}]{\setlength{\rightskip}{0pt plus 5cm}const int S\+C\+R\+E\+E\+N\+\_\+\+W\+I\+D\+T\+H = 500}\label{_terrain_generation_8cpp_a3482785bd2a4c8b307f9e0b6f54e2c36}
+\hypertarget{_terrain_generation_8cpp_a733837e7ed371a1af60b0784fdcca9fc}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!terrain\+Index\+Data@{terrain\+Index\+Data}}
+\index{terrain\+Index\+Data@{terrain\+Index\+Data}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{terrain\+Index\+Data}]{\setlength{\rightskip}{0pt plus 5cm}unsigned int terrain\+Index\+Data\mbox{[}{\bf num\+Strips\+Required}\mbox{]}\mbox{[}{\bf vertices\+Per\+Strip}\mbox{]}}\label{_terrain_generation_8cpp_a733837e7ed371a1af60b0784fdcca9fc}
+\hypertarget{_terrain_generation_8cpp_a89ebef0abaf7d22e9a9aa1a889dcc075}{}\index{Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}!vertices\+Per\+Strip@{vertices\+Per\+Strip}}
+\index{vertices\+Per\+Strip@{vertices\+Per\+Strip}!Terrain\+Generation.\+cpp@{Terrain\+Generation.\+cpp}}
+\subsubsection[{vertices\+Per\+Strip}]{\setlength{\rightskip}{0pt plus 5cm}const int vertices\+Per\+Strip = 2 $\ast$ {\bf M\+A\+P\+\_\+\+S\+I\+Z\+E}}\label{_terrain_generation_8cpp_a89ebef0abaf7d22e9a9aa1a889dcc075}

@@ -1,0 +1,140 @@
+\hypertarget{class_diamond_square}{}\section{Diamond\+Square Class Reference}
+\label{class_diamond_square}\index{Diamond\+Square@{Diamond\+Square}}
+
+
+{\ttfamily \#include $<$Diamond\+Square.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_diamond_square_a2b33c5a6b2828341547a631ad35a8b96}{Diamond\+Square} (float $\ast$$\ast$terrain, int map\+Size, float seed=0)
+\item 
+\hyperlink{class_diamond_square_afd8e0121742223c16f003f080ccf25f4}{$\sim$\+Diamond\+Square} ()
+\item 
+void \hyperlink{class_diamond_square_a88a0bb010425e5c84fc0d3f308c3d33b}{gen\+Terrain} (float $\ast$$\ast$terrain)
+\item 
+void \hyperlink{class_diamond_square_a631c82d30a581795aa587b6e80294341}{diamond} (float $\ast$$\ast$terrain, int x, int y, int width)
+\item 
+void \hyperlink{class_diamond_square_afc5f9469fd38c7d8db74bdd024de9b3f}{square} (float $\ast$$\ast$terrain, int x, int y, int width)
+\item 
+void \hyperlink{class_diamond_square_a65b8ebe5308518b347e12caa52c53237}{gen\+Rand\+Seed} (float seed)
+\item 
+int \hyperlink{class_diamond_square_a990af271a13b48e646742036bec3dc8c}{get\+Rand\+Num} ()
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{class_diamond_square_a051e1e1f11a4202cdbb048ab84c4b4d7}{M\+A\+P\+\_\+\+S\+I\+Z\+E}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Diamond Square
+
+Singluton class to randomly generate terrain 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_diamond_square_a2b33c5a6b2828341547a631ad35a8b96}{}\index{Diamond\+Square@{Diamond\+Square}!Diamond\+Square@{Diamond\+Square}}
+\index{Diamond\+Square@{Diamond\+Square}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{Diamond\+Square(float $\ast$$\ast$terrain, int map\+Size, float seed=0)}]{\setlength{\rightskip}{0pt plus 5cm}Diamond\+Square\+::\+Diamond\+Square (
+\begin{DoxyParamCaption}
+\item[{float $\ast$$\ast$}]{terrain, }
+\item[{int}]{map\+Size, }
+\item[{float}]{seed = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)}\label{class_diamond_square_a2b33c5a6b2828341547a631ad35a8b96}
+\hypertarget{class_diamond_square_afd8e0121742223c16f003f080ccf25f4}{}\index{Diamond\+Square@{Diamond\+Square}!````~Diamond\+Square@{$\sim$\+Diamond\+Square}}
+\index{````~Diamond\+Square@{$\sim$\+Diamond\+Square}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{$\sim$\+Diamond\+Square()}]{\setlength{\rightskip}{0pt plus 5cm}Diamond\+Square\+::$\sim$\+Diamond\+Square (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_diamond_square_afd8e0121742223c16f003f080ccf25f4}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_diamond_square_a631c82d30a581795aa587b6e80294341}{}\index{Diamond\+Square@{Diamond\+Square}!diamond@{diamond}}
+\index{diamond@{diamond}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{diamond(float $\ast$$\ast$terrain, int x, int y, int width)}]{\setlength{\rightskip}{0pt plus 5cm}void Diamond\+Square\+::diamond (
+\begin{DoxyParamCaption}
+\item[{float $\ast$$\ast$}]{terrain, }
+\item[{int}]{x, }
+\item[{int}]{y, }
+\item[{int}]{width}
+\end{DoxyParamCaption}
+)}\label{class_diamond_square_a631c82d30a581795aa587b6e80294341}
+Diamond
+
+Diamond section of diamond square algorithm
+
+
+\begin{DoxyParams}{Parameters}
+{\em Terrain} & Pointer to Terrain the terrain 2\+D array \\
+\hline
+{\em x} & The X coord of the first point in the square \\
+\hline
+{\em y} & The Y coord of the first point in the square \\
+\hline
+{\em width} & The width of the square \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_diamond_square_a65b8ebe5308518b347e12caa52c53237}{}\index{Diamond\+Square@{Diamond\+Square}!gen\+Rand\+Seed@{gen\+Rand\+Seed}}
+\index{gen\+Rand\+Seed@{gen\+Rand\+Seed}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{gen\+Rand\+Seed(float seed)}]{\setlength{\rightskip}{0pt plus 5cm}void Diamond\+Square\+::gen\+Rand\+Seed (
+\begin{DoxyParamCaption}
+\item[{float}]{seed}
+\end{DoxyParamCaption}
+)}\label{class_diamond_square_a65b8ebe5308518b347e12caa52c53237}
+Generate Random seed \hypertarget{class_diamond_square_a88a0bb010425e5c84fc0d3f308c3d33b}{}\index{Diamond\+Square@{Diamond\+Square}!gen\+Terrain@{gen\+Terrain}}
+\index{gen\+Terrain@{gen\+Terrain}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{gen\+Terrain(float $\ast$$\ast$terrain)}]{\setlength{\rightskip}{0pt plus 5cm}void Diamond\+Square\+::gen\+Terrain (
+\begin{DoxyParamCaption}
+\item[{float $\ast$$\ast$}]{terrain}
+\end{DoxyParamCaption}
+)}\label{class_diamond_square_a88a0bb010425e5c84fc0d3f308c3d33b}
+Generate Terrain
+
+Generates a new terrain \hypertarget{class_diamond_square_a990af271a13b48e646742036bec3dc8c}{}\index{Diamond\+Square@{Diamond\+Square}!get\+Rand\+Num@{get\+Rand\+Num}}
+\index{get\+Rand\+Num@{get\+Rand\+Num}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{get\+Rand\+Num()}]{\setlength{\rightskip}{0pt plus 5cm}int Diamond\+Square\+::get\+Rand\+Num (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_diamond_square_a990af271a13b48e646742036bec3dc8c}
+Generate Random random number \hypertarget{class_diamond_square_afc5f9469fd38c7d8db74bdd024de9b3f}{}\index{Diamond\+Square@{Diamond\+Square}!square@{square}}
+\index{square@{square}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{square(float $\ast$$\ast$terrain, int x, int y, int width)}]{\setlength{\rightskip}{0pt plus 5cm}void Diamond\+Square\+::square (
+\begin{DoxyParamCaption}
+\item[{float $\ast$$\ast$}]{terrain, }
+\item[{int}]{x, }
+\item[{int}]{y, }
+\item[{int}]{width}
+\end{DoxyParamCaption}
+)}\label{class_diamond_square_afc5f9469fd38c7d8db74bdd024de9b3f}
+Sqaure
+
+Sqaure section of diamond square algorithm
+
+
+\begin{DoxyParams}{Parameters}
+{\em Terrain} & Pointer to Terrain the terrain 2\+D array \\
+\hline
+{\em x} & The X coord of the first point in the square \\
+\hline
+{\em y} & The Y coord of the first point in the square \\
+\hline
+{\em width} & The width of the square \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\hypertarget{class_diamond_square_a051e1e1f11a4202cdbb048ab84c4b4d7}{}\index{Diamond\+Square@{Diamond\+Square}!M\+A\+P\+\_\+\+S\+I\+Z\+E@{M\+A\+P\+\_\+\+S\+I\+Z\+E}}
+\index{M\+A\+P\+\_\+\+S\+I\+Z\+E@{M\+A\+P\+\_\+\+S\+I\+Z\+E}!Diamond\+Square@{Diamond\+Square}}
+\subsubsection[{M\+A\+P\+\_\+\+S\+I\+Z\+E}]{\setlength{\rightskip}{0pt plus 5cm}int Diamond\+Square\+::\+M\+A\+P\+\_\+\+S\+I\+Z\+E}\label{class_diamond_square_a051e1e1f11a4202cdbb048ab84c4b4d7}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Terrain/\hyperlink{_diamond_square_8h}{Diamond\+Square.\+h}\item 
+Terrain/\hyperlink{_diamond_square_8cpp}{Diamond\+Square.\+cpp}\end{DoxyCompactItemize}
