@@ -34,6 +34,26 @@ struct Matrix4x4
 	float entries[16];
 };
 
+struct Material
+{
+	vec4 ambRefl;
+	vec4 difRefl;
+	vec4 specRefl;
+	vec4 emitCols;
+	float shininess;
+};
+
+static const Material terrainFandB =
+{
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(0.0, 0.0, 0.0, 1.0),
+	50.0f
+};
+
+
+
 static mat4 projMat = mat4(1.0);
 
 static const Matrix4x4 IDENTITY_MATRIX4x4 =
@@ -150,6 +170,9 @@ void setup(void)
 		}
 	}
 
+
+
+
 	
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 
@@ -183,13 +206,20 @@ void setup(void)
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)sizeof(terrainVertices[0].coords));
 	glEnableVertexAttribArray(1);
 	///////////////////////////////////////
-	//TEST
-	/*
-	GLint l_vertex = glGetAttribLocation(programId, "vertex");
-	glEnableVertexAttribArray(l_vertex);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer[SQUARE_VERTICES]);
-	glVertexAttribPointer(l_vertex, 3, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), 0);
-	*/
+	
+
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.ambRefl"), 1,
+		&terrainFandB.ambRefl[0]);
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.difRefl"), 1,
+		&terrainFandB.difRefl[0]);
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.specRefl"), 1,
+		&terrainFandB.specRefl[0]);
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.emitCols"), 1,
+		&terrainFandB.emitCols[0]);
+	glUniform1f(glGetUniformLocation(programId, "terrainFandB.shininess"),
+		terrainFandB.shininess);
+
+	
 	//////////////////////////////////////
 
 	// Obtain projection matrix uniform location and set value.

@@ -25,6 +25,13 @@ double ASPECT = 1;
 
 static mat4 projMat = mat4(1.0);
 
+vec3 eye, centre, up, los;
+float cameraTheta = 180;
+float cameraPhi = 0;
+
+mat4 modelViewMat = mat4(1.0);
+
+
 struct Vertex
 {
    float coords[4];
@@ -143,18 +150,18 @@ int calcBranch(Vertex Branch, int previousIndex, float angle, bool right, float 
 
 	float newAngle = convertToRad(angle);
 	mat2x2 rotatationMatrix;
+
+	int r = sqrt(pow(Branch.coords[0], 2) + pow(Branch.coords[1], 2) + pow(Branch.coords[2], 2));
 	if (right)
 	{
 		index += 1;
 		newAngle = -newAngle / 2.0f;
 		rotatationMatrix = mat2x2{ cos(newAngle), sin(newAngle), -sin(newAngle), cos(newAngle) };
-		//rotatationMatrix = mat2x2{ cos(newAngle / 2), -sin(newAngle / 2), sin(newAngle / 2), cos(newAngle / 2) };
 	}
 	else
 	{
 		newAngle = newAngle / 2.0f;
 		rotatationMatrix = mat2x2{ cos(newAngle), sin(newAngle), -sin(newAngle), cos(newAngle) };
-		//rotatationMatrix = mat2x2{ cos(newAngle / 2), -sin(newAngle / 2), sin(newAngle / 2), cos(newAngle / 2) };
 	}
 	
 	glm::vec2 source(Branch.coords[0], Branch.coords[1]);
@@ -202,7 +209,7 @@ void drawBranch(int level, float prevPosX, float prevPosY, float height, float a
 	if (level < MAX_LEVEL-1)
 	{
 		//angle += getRandAngle(15);
-		//prevPosX = squareVertices[leftIndex].coords[0];
+		prevPosX = squareVertices[leftIndex].coords[0];
 		prevPosY = squareVertices[leftIndex].coords[1];
 
 		float prevPosX1, prevPosX2, prevPosY1, prevPosY2;
@@ -211,18 +218,15 @@ void drawBranch(int level, float prevPosX, float prevPosY, float height, float a
 		prevPosX2 = squareVertices[leftIndex].coords[0];
 
 		prevPosX = prevPosX2 - prevPosX1;
-
+		
 		drawBranch(level + 1, prevPosX, prevPosY + (height / 2.0), height / 2.0, angle/2.0, leftIndex);
-
-
-		//drawBranch(level + 1, prevPosX, prevPosY+(height/2), height/2, angle, leftIndex);
 	}
 	
 	int rightIndex = calcBranch(Branch, prevIndex, angle += getRandAngle(15), true, height);
 	if (level < MAX_LEVEL-1)
 	{
-		angle += getRandAngle(15);
-		//prevPosX = squareVertices[rightIndex].coords[0];
+		//angle += getRandAngle(15);
+		prevPosX = squareVertices[rightIndex].coords[0];
 		prevPosY = squareVertices[rightIndex].coords[1];
 
 		float prevPosX1, prevPosX2, prevPosY1, prevPosY2;
@@ -311,12 +315,12 @@ void setup(void)
    //modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat"); 
    //glUniformMatrix4fv(modelViewMatLoc, 1, GL_TRUE, modelViewMat.entries);
 
-   mat4 modelViewMat = mat4(1.0);
-   vec3 eye, centre, up;
+   //mat4 modelViewMat = mat4(1.0);
    eye = vec3(0.0, 0.0, -65.0);
-   centre = vec3(0.0, 0.0,-64.0);
+   //centre = vec3(0.0, 0.0, -64.0);
+   los = vec3(0.0, 0.0, 1.0);
    up = vec3(0.0, 1.0, 0.0);
-   modelViewMat = lookAt(eye, centre, up);
+   modelViewMat = lookAt(eye, los+eye, up);
    modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat");
    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
    ///////////////////////////////////////
@@ -328,11 +332,17 @@ void drawScene(void)
    glClear(GL_COLOR_BUFFER_BIT);
    glLineWidth(4);
   
-   //glDrawArrays(GL_LINES, 0, 16);
    
-   glDrawElements(GL_LINES, 30, GL_UNSIGNED_INT, &indexBuffers);
 
+
+   modelViewMat = lookAt(eye, los + eye, up);
+   modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat");
+   glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
+
+   //cout << "DRAWING" << endl;
+   glDrawElements(GL_LINES, 30, GL_UNSIGNED_INT, &indexBuffers);
    glFlush();
+   glutPostRedisplay();
 }
 
 // OpenGL window reshape routine.
@@ -349,9 +359,34 @@ void keyInput(unsigned char key, int x, int y)
       case 27:
          exit(0);
          break;
+	  case 119://w
+		  eye.z += los.z *0.30;
+		  eye.x += los.x *0.30;
+		  eye.y += los.y *0.30;
+		  break;
+	  case 115://s
+		  eye.z -= los.z *0.30;
+		  eye.x -= los.x *0.30;
+		  eye.y -= los.y *0.30;
+		  break;
+	  case 97://a
+		  cameraTheta -= 1;
+		  break;
+	  case 100://d
+		  cameraTheta += 1;
+		  break;
+	  case 113://q
+		  cameraPhi += 1;
+		  break;
+	  case 101://e
+		  cameraPhi -= 1;
+		  break;
       default:
          break;
    }
+   los.x = cos(radians(cameraPhi)) * sin(radians(cameraTheta));
+   los.y = sin(radians(cameraPhi));
+   los.z = cos(radians(cameraPhi)) * -cos(radians(cameraTheta));
 }
 
 // Main routine.
