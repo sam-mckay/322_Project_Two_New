@@ -16,6 +16,9 @@
 #include<freeglut.h>
 #include<glext.h>
 
+#include"Tree.h"
+#include"DiamondSquare.h"
+
 #pragma comment(lib, "glew32.lib") 
 
 using namespace std;
@@ -36,12 +39,41 @@ struct Vertex
 {
    float coords[4];
    float colors[4];
+   float normals[3];
 };
 
 struct Matrix4x4
 {
    float entries[16];
 };
+
+
+struct Material
+{
+	vec4 ambRefl;
+	vec4 difRefl;
+	vec4 specRefl;
+	vec4 emitCols;
+	float shininess;
+};
+
+struct Light
+{
+	vec4 ambCols;
+	vec4 difCols;
+	vec4 specCols;
+	vec4 coords;
+};
+
+static const Material terrainFandB =
+{
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(0.0, 0.0, 0.0, 1.0),
+	50.0f
+};
+
 
 static const Matrix4x4 IDENTITY_MATRIX4x4 = 
 {
@@ -53,15 +85,35 @@ static const Matrix4x4 IDENTITY_MATRIX4x4 =
    }
 };
 
-static enum buffer {SQUARE_VERTICES}; 
-static enum object {SQUARE}; 
+//lighting
+static const vec4 globAmb = glm::vec4(0.2, 0.2, 0.2, 1.0);
+static const Light light0 =
+{
+	vec4(0.0, 0.0, 0.0, 1.0),
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(1.0, 1.0, 0.0, 0.0)
+};
+
+//buffers
+static enum buffer { TERRAIN_VERTICES, SQUARE_VERTICES };
+static enum object { TERRAIN, SQUARE };
+
+const int MAP_SIZE = 5;
+
+static Vertex terrainVertices[MAP_SIZE*MAP_SIZE] = {};
+static glm::vec3 terrainTriangleNormals[((MAP_SIZE-1)*(MAP_SIZE-1))*2] = {};
+//static Vertex terrainVerticeNormals[MAP_SIZE*MAP_SIZE] = {};
+
+const int numStripsRequired = MAP_SIZE - 1;
+const int verticesPerStrip = 2 * MAP_SIZE;
+
+unsigned int terrainIndexData[numStripsRequired][verticesPerStrip];
 
 int indexBuffers[30] = {0,1,1, 2, 1, 3, 2, 4, 2, 5, 3, 6, 3, 7, 4, 8, 4, 9, 5, 10, 5, 11, 6, 12, 6, 13, 7, 14, 7, 15 };
 int indexData[7] = { 2, 6, 10, 14, 18, 22, 26 };
 int levelBuffer[7] = { 1, 2, 2, 3, 3, 3, 3 };
-//int indexBuffers[28] = {1, 2, 1, 3, 2, 4, 2, 5, 3, 6, 3, 7, 4, 8, 4, 9, 5, 10, 5, 11, 6, 12, 6, 13, 7, 14, 7, 15 };
 
-//int indexBuffers[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 
 const int MAX_LEVEL = 3;
 
@@ -107,159 +159,97 @@ float convertToRad(float angle)
 //
 //
 
-float getRandAngle(float range)
+/*
+void shaderCompileTest(GLuint shader)
 {
-	float randNum = ((float)rand() / (float)RAND_MAX);
-	float newRange = range * 2;
-	return (randNum*newRange) + -range;
-}
+	GLint result = GL_FALSE;
+	int logLength;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+	string vertShaderError((logLength > 1) ? logLength : 1);
+	glGetShaderInfoLog(shader, logLength, NULL, &vertShaderError[0]);
+	std::cout << &vertShaderError[0] << std::endl;
+}*/
 
-void drawTrunk(Vertex treeTrunk1)
+void getTriangleNormal()
 {
-	squareVertices[0].coords[0] = treeTrunk1.coords[0];
-	squareVertices[0].coords[1] = treeTrunk1.coords[1];
-	squareVertices[0].coords[2] = 0.0;
-	squareVertices[0].coords[3] = 1.0;
-	
-	squareVertices[1].coords[0] = treeTrunk1.coords[2];
-	squareVertices[1].coords[1] = treeTrunk1.coords[3];
-	squareVertices[1].coords[2] = 0.0;
-	squareVertices[1].coords[3] = 1.0;
 
-	squareVertices[0].colors[0] = treeTrunk1.colors[0];
-	squareVertices[0].colors[1] = treeTrunk1.colors[1];
-	squareVertices[0].colors[2] = treeTrunk1.colors[2];
-	squareVertices[0].colors[3] = treeTrunk1.colors[3];
-
-	squareVertices[1].colors[0] = treeTrunk1.colors[0];
-	squareVertices[1].colors[1] = treeTrunk1.colors[1];
-	squareVertices[1].colors[2] = treeTrunk1.colors[2];
-	squareVertices[1].colors[3] = treeTrunk1.colors[3];
-
-}
-
-int calcBranch(Vertex Branch, int previousIndex, float angle, bool right, float height)
-{
-	int index = previousIndex * 2;
-	
-	Branch.coords[0] = squareVertices[previousIndex].coords[0] - squareVertices[0].coords[0];
-	Branch.coords[1] = squareVertices[previousIndex].coords[1] - squareVertices[0].coords[1];
-
-	Branch.coords[0] *= height;
-	Branch.coords[1] *= height;
-
-	float newAngle = convertToRad(angle);
-	mat2x2 rotatationMatrix;
-
-	int r = sqrt(pow(Branch.coords[0], 2) + pow(Branch.coords[1], 2) + pow(Branch.coords[2], 2));
-	if (right)
+	for (int i = 0; i < ((MAP_SIZE - 1)*(MAP_SIZE - 1)) * 2; i)
 	{
-		index += 1;
-		newAngle = -newAngle / 2.0f;
-		rotatationMatrix = mat2x2{ cos(newAngle), sin(newAngle), -sin(newAngle), cos(newAngle) };
-	}
-	else
-	{
-		newAngle = newAngle / 2.0f;
-		rotatationMatrix = mat2x2{ cos(newAngle), sin(newAngle), -sin(newAngle), cos(newAngle) };
-	}
-	
-	glm::vec2 source(Branch.coords[0], Branch.coords[1]);
-	
-	source = rotatationMatrix*source;
+		glm::vec3 point1, point2, point3;
 
-	Branch.coords[2] = squareVertices[previousIndex].coords[0] + source.x;
-	Branch.coords[3] = squareVertices[previousIndex].coords[1] + source.y;
-
-	glm::vec2 end(Branch.coords[2], Branch.coords[3]);
-
-	squareVertices[index].coords[0] = end.x;
-	squareVertices[index].coords[1] = end.y;
-	squareVertices[index].coords[2] = 0.0;
-	squareVertices[index].coords[3] = 1.0;
-	
-	squareVertices[previousIndex].colors[0] = Branch.colors[0];
-	squareVertices[previousIndex].colors[1] = Branch.colors[1];
-	squareVertices[previousIndex].colors[2] = Branch.colors[2];
-	squareVertices[previousIndex].colors[3] = Branch.colors[3];
-
-	squareVertices[index].colors[0] = Branch.colors[0];
-	squareVertices[index].colors[1] = Branch.colors[1];
-	squareVertices[index].colors[2] = Branch.colors[2];
-	squareVertices[index].colors[3] = Branch.colors[3];
-
-	if (right)
-	{
-		cout << "DRAWN RIGHT BRANCH : PREVIOUS INDEX: " << previousIndex << " INDEX: " << index << endl;
-	}
-	else
-	{
-		cout << "DRAWN LEFT BRANCH  : PREVIOUS INDEX: " << previousIndex << " INDEX: " << index << endl;
-	}
-	return index;
-}
-
-void drawBranch(int level, float prevPosX, float prevPosY, float height, float angle, int prevIndex)
-{
-	Vertex Branch = Vertex{ { 0, 0, 0, 0 }, { 0.55f, 0.27f, 0.075f, 1.0f } };
-	cout << "LEVEL: " << level << " MAX LEVEL: " << MAX_LEVEL << endl;
-
-	int leftIndex = calcBranch(Branch, prevIndex, angle+=getRandAngle(15), false, height);
-
-	if (level < MAX_LEVEL-1)
-	{
-		//angle += getRandAngle(15);
-		prevPosX = squareVertices[leftIndex].coords[0];
-		prevPosY = squareVertices[leftIndex].coords[1];
-
-		float prevPosX1, prevPosX2, prevPosY1, prevPosY2;
-
-		prevPosX1 = squareVertices[prevIndex].coords[0];
-		prevPosX2 = squareVertices[leftIndex].coords[0];
-
-		prevPosX = prevPosX2 - prevPosX1;
+		point1 = glm::vec3(terrainVertices[i].coords[0], terrainVertices[i].coords[1], terrainVertices[i].coords[2]);
+		point2 = glm::vec3(terrainVertices[i + 1].coords[0], terrainVertices[i + 1].coords[1], terrainVertices[i + 1].coords[2]);
+		point3 = glm::vec3(terrainVertices[i + 2].coords[0], terrainVertices[i + 2].coords[1], terrainVertices[i + 2].coords[2]);
 		
-		drawBranch(level + 1, prevPosX, prevPosY + (height / 2.0), height / 2.0, angle/2.0, leftIndex);
+		//cout << "TERRAIN INTEGRITY CHECK: " << terrainVertices[i].coords[0] << "," << terrainVertices[i].coords[1] << "," << terrainVertices[i].coords[2] << endl;
+
+		//cout << "point1 Vector: " << point1.x << "," << point1.y << "," << point1.z << endl;
+		//cout << "point2 Vector: " << point2.x << "," << point2.y << "," << point2.z << endl;
+		//cout << "point3 Vector: " << point3.x << "," << point3.y << "," << point3.z << endl;
+
+		//side1 = b - a
+		glm::vec3 aToB = point2 - point1;
+		//side2 = c - a
+		glm::vec3 aToC = point3 - point1;
+
+		//cout << "AtoB Vector: " << aToB.x << "," << aToB.y << "," << aToB.z << endl;
+		//cout << "AtoC Vector: " << aToC.x << "," << aToC.y << "," << aToC.z << endl;
+
+		terrainTriangleNormals[i] = glm::cross(aToB, aToC);
+		//cout << "CROSS PRODUCT OUTPUT " << glm::cross(aToB, aToC).x << "," << glm::cross(aToB, aToC).y << "," << glm::cross(aToB, aToC).z << endl;
+		i += 2;
+		//cout << i << endl;
 	}
-	
-	int rightIndex = calcBranch(Branch, prevIndex, angle += getRandAngle(15), true, height);
-	if (level < MAX_LEVEL-1)
-	{
-		//angle += getRandAngle(15);
-		prevPosX = squareVertices[rightIndex].coords[0];
-		prevPosY = squareVertices[rightIndex].coords[1];
 
-		float prevPosX1, prevPosX2, prevPosY1, prevPosY2;
-
-		prevPosX1 = squareVertices[prevIndex].coords[0];
-		prevPosX2 = squareVertices[rightIndex].coords[0];
-
-		prevPosX = prevPosX2 - prevPosX1;
-
-		drawBranch(level + 1, prevPosX, prevPosY + (height / 2.0), height / 2.0, angle / 2.0, rightIndex);
+	for (int i = 0; i < ((MAP_SIZE - 1)*(MAP_SIZE - 1)) * 2; i++)
+	{		
+		cout << "TRIANGLE NORMALS: " << terrainTriangleNormals[i].x << "," << terrainTriangleNormals[i].y << "," << terrainTriangleNormals[i].z << endl;
+		cout << i << endl;
 	}
 	
 }
 
-//generates a tree
-void drawTree(int *level)
-{	
-	Vertex Trunk = Vertex{ { 0, -30, 0, -15 }, {0.55f, 0.27f, 0.075f, 1.0f} };
-	drawTrunk(Trunk);
-
-
-	//drawBranch(0, -0, -15, 15, 40, 0);
-	float height = 1.0;
-	float angle = 90;
-	drawBranch(0, 0, -15 + height, height, angle, 1);
-
-	//test
-	for (int i = 0; i < 15; i++)
+void getVertexNormal()
+{
+	for (int i = 0; i < MAP_SIZE * MAP_SIZE; i++)
 	{
-		cout << squareVertices[i].coords[0] << "," << squareVertices[i].coords[1] << endl;
+		if (i == 0)
+		{
+
+		}
 	}
+}
+
+void lightSetup()
+{
+	getTriangleNormal();
+	//global
+	glUniform4fv(glGetUniformLocation(programId, "globAmb"),1, &globAmb[0]);
+	//lights
+	glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1,
+		&light0.ambCols[0]);
+	glUniform4fv(glGetUniformLocation(programId, "light0.difCols"), 1,
+		&light0.difCols[0]);
+	glUniform4fv(glGetUniformLocation(programId, "light0.specCols"), 1,
+		&light0.specCols[0]);
+	glUniform4fv(glGetUniformLocation(programId, "light0.coords"), 1,
+		&light0.coords[0]);
+
+	//terrain
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.ambRefl"), 1,
+		&terrainFandB.ambRefl[0]);
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.difRefl"), 1,
+		&terrainFandB.difRefl[0]);
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.specRefl"), 1,
+		&terrainFandB.specRefl[0]);
+	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.emitCols"), 1,
+		&terrainFandB.emitCols[0]);
+	glUniform1f(glGetUniformLocation(programId, "terrainFandB.shininess"),
+		terrainFandB.shininess);
+
+
 	
-	cout << "DONE TREE" << endl;
 }
 
 // Initialization routine.
@@ -268,11 +258,75 @@ void setup(void)
    glClearColor(1.0, 1.0, 1.0, 0.0);
    //
    //
+
+   //create Trees
    int levelVal = 0;
    int *level = &levelVal;
    
-   drawTree(level);
+   Tree *tree1 = new Tree(MAX_LEVEL);
+
+   tree1->drawTree();
+
+   //create terrain
+   //create terrain array pointer
+   float **terrain = new float*[MAP_SIZE];
+   for (int i = 0; i < MAP_SIZE; i++)
+   {
+	   terrain[i] = new float[MAP_SIZE];
+   }
+
+   // Initialise terrain - set values in the height map to 0
+   for (int x = 0; x < MAP_SIZE; x++)
+   {
+	   for (int z = 0; z < MAP_SIZE; z++)
+	   {
+		   terrain[x][z] = 0;
+	   }
+   }
+   DiamondSquare *terrainGen = new DiamondSquare(terrain, MAP_SIZE, 4);
+   terrainGen->genTerrain(terrain, 0, 0, 5, (MAP_SIZE - 1));//7
+   //terrainGen->printTerrain(terrain);
+
+   // Intialise vertex array
+   int i = 0;
+
+   for (int z = 0; z < MAP_SIZE; z++)
+   {
+	   for (int x = 0; x < MAP_SIZE; x++)
+	   {
+		   // Set the coords (1st 4 elements) and a default colour of black (2nd 4 elements) 
+		   terrainVertices[i] = { { (float)x, terrain[x][z], (float)z, 1.0 }, { 255.0, 0.0, 0.0, 1.0 } };
+		  // cout << "TERRAIN INITIALISED STATUS: " << terrainVertices[i].coords[0] << "," << terrainVertices[i].coords[1] << "," << terrainVertices[i].coords[2] << endl;
+		   i++;
+
+
+	   }
+   }
+
+   // Now build the index data 
+   i = 0;
+   for (int z = 0; z < MAP_SIZE - 1; z++)
+   {
+	   i = z * MAP_SIZE;
+	   for (int x = 0; x < MAP_SIZE * 2; x += 2)
+	   {
+		   terrainIndexData[z][x] = i;
+		   i++;
+	   }
+	   for (int x = 1; x < MAP_SIZE * 2 + 1; x += 2)
+	   {
+		   terrainIndexData[z][x] = i;
+		   i++;
+	   }
+   }
+
+   //depth test
+
+   glEnable(GL_DEPTH_TEST);
    //
+
+   
+
 
    // Create shader program executable.
    char* vertexShader = readTextFile("vertexShader.glsl");
@@ -292,19 +346,40 @@ void setup(void)
    glUseProgram(programId); 
    ///////////////////////////////////////
 
+
+	//TREE
    // Create VAO and VBO and associate data with vertex shader.
-   glGenVertexArrays(1, vao);
-   glGenBuffers(1, buffer);
+   
+   glGenVertexArrays(2, vao);
+   glGenBuffers(2, buffer);
+   
    glBindVertexArray(vao[SQUARE]);
    glBindBuffer(GL_ARRAY_BUFFER, buffer[SQUARE_VERTICES]);
-   glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices, GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(tree1->squareVertices), tree1->squareVertices, GL_STATIC_DRAW);
 
-   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(squareVertices[0]), 0);
+   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), 0);
    glEnableVertexAttribArray(0);
-   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(squareVertices[0]), (GLvoid*)sizeof(squareVertices[0].coords));
+   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), (GLvoid*)sizeof(tree1->squareVertices[0].coords));
+   glEnableVertexAttribArray(1);
+   
+   
+   ///////////////////////////////////////
+
+   //TERRAIN
+   // Create vertex array object (VAO) and vertex buffer object (VBO) and associate data with vertex shader.
+   glBindVertexArray(vao[TERRAIN]);
+   glBindBuffer(GL_ARRAY_BUFFER, buffer[TERRAIN_VERTICES]);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(terrainVertices), terrainVertices, GL_STATIC_DRAW);
+
+   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), 0);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)sizeof(terrainVertices[0].coords));
+   glEnableVertexAttribArray(1);
+   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)sizeof(terrainVertices[0].colors));
    glEnableVertexAttribArray(1);
    ///////////////////////////////////////
 
+   lightSetup();
 	//
    projMatLoc = glGetUniformLocation(programId, "projMat");
    //projMat = ortho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
@@ -324,12 +399,17 @@ void setup(void)
    modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat");
    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
    ///////////////////////////////////////
+
+
+
+
 }
+
 
 // Drawing routine.
 void drawScene(void)
 {
-   glClear(GL_COLOR_BUFFER_BIT);
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLineWidth(4);
   
    
@@ -340,7 +420,17 @@ void drawScene(void)
    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
 
    //cout << "DRAWING" << endl;
-   glDrawElements(GL_LINES, 30, GL_UNSIGNED_INT, &indexBuffers);
+//draw tree
+  // glDrawElements(GL_LINES, 30, GL_UNSIGNED_INT, &indexBuffers);
+
+//draw terrain
+   // For each row - draw the triangle strip
+   for (int i = 0; i < MAP_SIZE - 1; i++)
+   {
+	   glDrawElements(GL_TRIANGLE_STRIP, verticesPerStrip, GL_UNSIGNED_INT, terrainIndexData[i]);
+   }
+
+
    glFlush();
    glutPostRedisplay();
 }
@@ -402,6 +492,7 @@ int main(int argc, char* argv[])
    glutInitWindowSize(500, 500);
    glutInitWindowPosition(100, 100); 
    glutCreateWindow("squareShaderized.cpp");
+
    glutDisplayFunc(drawScene);
    glutReshapeFunc(resize);
    glutKeyboardFunc(keyInput);

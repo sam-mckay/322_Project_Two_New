@@ -51,7 +51,7 @@ static const Material terrainFandB =
 	vec4(0.0, 0.0, 0.0, 1.0),
 	50.0f
 };
-
+static const vec4 globAmb = vec4(0.2, 0.2, 0.2, 1.0);
 
 
 static mat4 projMat = mat4(1.0);
@@ -207,6 +207,7 @@ void setup(void)
 	glEnableVertexAttribArray(1);
 	///////////////////////////////////////
 	
+	glUniform4fv(glGetUniformLocation(programId, "globAmb"), 1, &globAmb[0]);
 
 	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.ambRefl"), 1,
 		&terrainFandB.ambRefl[0]);
@@ -290,7 +291,7 @@ int main(int argc, char* argv[])
 	glutCreateWindow("TerrainGeneration");
 
 	// Set OpenGL to render in wireframe mode
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(resize);
