@@ -103,6 +103,7 @@ const int MAP_SIZE = 5;
 
 static Vertex terrainVertices[MAP_SIZE*MAP_SIZE] = {};
 static glm::vec3 terrainTriangleNormals[((MAP_SIZE-1)*(MAP_SIZE-1))*2] = {};
+static mat3 normalMat = mat3(1.0);
 //static Vertex terrainVerticeNormals[MAP_SIZE*MAP_SIZE] = {};
 
 const int numStripsRequired = MAP_SIZE - 1;
@@ -119,6 +120,8 @@ const int MAX_LEVEL = 3;
 
 // Globals
 Vertex squareVertices[16];
+float **terrain = new float*[MAP_SIZE];
+
 
 static unsigned int
    programId,
@@ -126,6 +129,7 @@ static unsigned int
    fragmentShaderId,
    modelViewMatLoc,
    projMatLoc,
+   normalMatLoc,
    buffer[1],
    vao[1];
    
@@ -210,22 +214,49 @@ void getTriangleNormal()
 	
 }
 
-void getVertexNormal()
+glm::vec3 getVertexNormal(int x, float y, int z, int i)
 {
-	for (int i = 0; i < MAP_SIZE * MAP_SIZE; i++)
-	{
-		if (i == 0)
-		{
+		glm::vec3 point1, point2, point3;
 
+		point1 = glm::vec3(x,y,z);
+
+		if (x != MAP_SIZE-1 && z != MAP_SIZE-1)
+		{
+			point2 = glm::vec3(float(x + 1), terrain[int(x + 1)][int(z)], float(z));
+			point3 = glm::vec3(float(x), terrain[int(x)][int(z + 1)], float(z + 1));
 		}
-	}
+		else if (x != MAP_SIZE - 1 && z == MAP_SIZE - 1)
+		{
+			point2 = glm::vec3(float(x + 1), terrain[int(x + 1)][int(z)], float(z));
+			point3 = glm::vec3(float(x), terrain[int(x)][int(z - 1)], float(z - 1));
+		}
+		else if (x == MAP_SIZE - 1 && z != MAP_SIZE - 1)
+		{
+			point2 = glm::vec3(float(x - 1), terrain[int(x - 1)][int(z)], float(z));
+			point3 = glm::vec3(float(x), terrain[int(x)][int(z + 1)], float(z + 1));
+		}
+		else 
+		{
+			point2 = glm::vec3(float(x - 1), terrain[int(x - 1)][int(z)], float(z));
+			point3 = glm::vec3(float(x), terrain[int(x)][int(z - 1)], float(z - 1));
+		}
+
+		//side1 = b - a
+		glm::vec3 aToB = point2 - point1;
+		//side2 = c - a
+		glm::vec3 aToC = point3 - point1;
+
+		glm::vec3 result = glm::cross(aToB, aToC);
+
+		return glm::normalize(result);	
 }
 
 void lightSetup()
 {
-	getTriangleNormal();
+	//getTriangleNormal();
 	//global
-	glUniform4fv(glGetUniformLocation(programId, "globAmb"),1, &globAmb[0]);
+	glUniform4fv(glGetUniformLocation(programId, "globAmb"),1, &globAmb[0]);
+
 	//lights
 	glUniform4fv(glGetUniformLocation(programId, "light0.ambCols"), 1,
 		&light0.ambCols[0]);
@@ -234,7 +265,8 @@ void lightSetup()
 	glUniform4fv(glGetUniformLocation(programId, "light0.specCols"), 1,
 		&light0.specCols[0]);
 	glUniform4fv(glGetUniformLocation(programId, "light0.coords"), 1,
-		&light0.coords[0]);
+		&light0.coords[0]);
+
 
 	//terrain
 	glUniform4fv(glGetUniformLocation(programId, "terrainFandB.ambRefl"), 1,
@@ -269,7 +301,7 @@ void setup(void)
 
    //create terrain
    //create terrain array pointer
-   float **terrain = new float*[MAP_SIZE];
+  
    for (int i = 0; i < MAP_SIZE; i++)
    {
 	   terrain[i] = new float[MAP_SIZE];
@@ -294,12 +326,13 @@ void setup(void)
    {
 	   for (int x = 0; x < MAP_SIZE; x++)
 	   {
-		   // Set the coords (1st 4 elements) and a default colour of black (2nd 4 elements) 
-		   terrainVertices[i] = { { (float)x, terrain[x][z], (float)z, 1.0 }, { 255.0, 0.0, 0.0, 1.0 } };
+		   // Set the coords (1st 4 elements) and a default colour of black (2nd 4 elements)
+		   glm::vec3 result = getVertexNormal(x, terrain[x][z], z, i);
+		   terrainVertices[i] = { { (float)x, terrain[x][z], (float)z, 1.0 }, { 255.0, 0.0, 0.0, 1.0 }, { result.x, result.y, result.z } };
 		  // cout << "TERRAIN INITIALISED STATUS: " << terrainVertices[i].coords[0] << "," << terrainVertices[i].coords[1] << "," << terrainVertices[i].coords[2] << endl;
 		   i++;
-
-
+			//
+		  // setVertexNormal(x,terrain[x][z],z,i);
 	   }
    }
 
@@ -323,6 +356,8 @@ void setup(void)
    //depth test
 
    glEnable(GL_DEPTH_TEST);
+   glEnable(GL_CULL_FACE);
+   glCullFace(GL_BACK);
    //
 
    
@@ -382,6 +417,7 @@ void setup(void)
    lightSetup();
 	//
    projMatLoc = glGetUniformLocation(programId, "projMat");
+   normalMatLoc = glGetUniformLocation(programId, "normalMat");
    //projMat = ortho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
    projMat = perspective(1.0472, (double)ASPECT, 0.1, 200.0);
    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, value_ptr(projMat));
@@ -418,6 +454,8 @@ void drawScene(void)
    modelViewMat = lookAt(eye, los + eye, up);
    modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat");
    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
+   normalMat = transpose(inverse(mat3(modelViewMat)));
+   glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, value_ptr(normalMat));
 
    //cout << "DRAWING" << endl;
 //draw tree
