@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////          
+﻿////////////////////////////////////////////////////////          
 // squareShaderized.cpp
 //
 // Forward-compatible core GL 4.3 version of square.cpp.
@@ -92,9 +92,9 @@ static const vec4 globAmb = glm::vec4(0.2, 0.2, 0.2, 1.0);
 static const Light light0 =
 {
 	vec4(0.0, 0.0, 0.0, 1.0),
+	vec4(0.5, 0.5, 0.5, 1.0),
 	vec4(1.0, 1.0, 1.0, 1.0),
-	vec4(1.0, 1.0, 1.0, 1.0),
-	vec4(1.0, 1.0, 0.0, 0.0)
+	vec4(1.0, 5.0, 0.0, 0.0)
 };
 
 //buffers
@@ -105,6 +105,7 @@ static enum buffer {SQUARE_VERTICES };
 static enum object {SQUARE };
 
 const int MAP_SIZE = 33;
+float height = 10;
 
 static Vertex terrainVertices[MAP_SIZE*MAP_SIZE] = {};
 static glm::vec3 terrainTriangleNormals[((MAP_SIZE-1)*(MAP_SIZE-1))*2] = {};
@@ -179,9 +180,6 @@ float convertToRad(float angle)
 //
 //
 
-
-
-
 void getTriangleNormal()
 {
 
@@ -221,6 +219,8 @@ void getTriangleNormal()
 	
 }
 
+
+
 glm::vec3 getVertexNormal(int x, float y, int z, int i)
 {
 		glm::vec3 point1, point2, point3;
@@ -229,8 +229,8 @@ glm::vec3 getVertexNormal(int x, float y, int z, int i)
 
 		if (x != MAP_SIZE-1 && z != MAP_SIZE-1)
 		{
-			point2 = glm::vec3(float(x + 1), terrain[int(x + 1)][int(z)], float(z));
-			point3 = glm::vec3(float(x), terrain[int(x)][int(z + 1)], float(z + 1));
+			point3 = glm::vec3(float(x + 1), terrain[int(x + 1)][int(z)], float(z));
+			point2 = glm::vec3(float(x), terrain[int(x)][int(z + 1)], float(z + 1));
 		}
 		else if (x != MAP_SIZE - 1 && z == MAP_SIZE - 1)
 		{
@@ -244,8 +244,8 @@ glm::vec3 getVertexNormal(int x, float y, int z, int i)
 		}
 		else 
 		{
-			point2 = glm::vec3(float(x - 1), terrain[int(x - 1)][int(z)], float(z));
-			point3 = glm::vec3(float(x), terrain[int(x)][int(z - 1)], float(z - 1));
+			point3 = glm::vec3(float(x - 1), terrain[int(x - 1)][int(z)], float(z));
+			point2 = glm::vec3(float(x), terrain[int(x)][int(z - 1)], float(z - 1));
 		}
 
 		//side1 = b - a
@@ -323,8 +323,9 @@ void setup(void)
 		   terrain[x][z] = 0;
 	   }
    }
-   DiamondSquare *terrainGen = new DiamondSquare(terrain, MAP_SIZE, 4);
-   terrainGen->genTerrain(terrain, 0, 0, 5, (MAP_SIZE - 1));//7
+   
+   DiamondSquare *terrainGen = new DiamondSquare(terrain, MAP_SIZE, 4, height);
+   terrainGen->genTerrain(terrain, 0, 0, height, (MAP_SIZE - 1));//7
    //terrainGen->printTerrain(terrain);
 
    // Intialise vertex array
@@ -336,13 +337,11 @@ void setup(void)
 	   {
 			// Set the coords (1st 4 elements) and a default colour of black (2nd 4 elements)
 			glm::vec3 result = getVertexNormal(x, terrain[x][z], z, i);
-			//terrainVertices[i] = { { (float)x, terrain[x][z], (float)z, 1.0 }, { 255.0, 0.0, 0.0, 1.0 }, { result.x, result.y, result.z } };
 			terrainVertices[i] = { { (float)x, terrain[x][z], (float)z, 1.0 }, { result.x, result.y, result.z } };
-			//terrainVertices[i] = { { (float)x, terrain[x][z], (float)z, 1.0 }, { 255.0, 0.0, 0.0, 1.0 }};
-		  // cout << "TERRAIN INITIALISED STATUS: " << terrainVertices[i].coords[0] << "," << terrainVertices[i].coords[1] << "," << terrainVertices[i].coords[2] << endl;
-		   i++;
+
+			// cout << "TERRAIN INITIALISED STATUS: " << terrainVertices[i].coords[0] << "," << terrainVertices[i].coords[1] << "," << terrainVertices[i].coords[2] << endl;
+			i++;
 			//
-		  // setVertexNormal(x,terrain[x][z],z,i);
 	   }
    }
 
@@ -365,9 +364,9 @@ void setup(void)
 
    //depth test
 
-   //glEnable(GL_DEPTH_TEST);
-   //glEnable(GL_CULL_FACE);
-   //glCullFace(GL_BACK);
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_CULL_FACE);
+   glCullFace(GL_BACK);
 
    //
 
@@ -429,7 +428,7 @@ void setup(void)
    //glEnableVertexAttribArray(1);
    ///////////////////////////////////////
 
-   //lightSetup();
+   lightSetup();
 	//
    projMatLoc = glGetUniformLocation(programId, "projMat");
    normalMatLoc = glGetUniformLocation(programId, "normalMat");
@@ -442,7 +441,7 @@ void setup(void)
    //glUniformMatrix4fv(modelViewMatLoc, 1, GL_TRUE, modelViewMat.entries);
 
    //mat4 modelViewMat = mat4(1.0);
-   eye = vec3(0.0, 0.0, -65.0);
+   eye = vec3(15.3, 3.2, -1.3);
    //centre = vec3(0.0, 0.0, -64.0);
    los = vec3(0.0, 0.0, 1.0);
    up = vec3(0.0, 1.0, 0.0);
@@ -460,17 +459,14 @@ void setup(void)
 // Drawing routine.
 void drawScene(void)
 {
-   glClear(GL_COLOR_BUFFER_BIT);
-   glLineWidth(4);
-  
-   
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLineWidth(4);
 
-
-   modelViewMat = lookAt(eye, los + eye, up);
-   modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat");
-   glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
-  // normalMat = transpose(inverse(mat3(modelViewMat)));
-   //glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, value_ptr(normalMat));
+	modelViewMat = lookAt(eye, los + eye, up);
+	modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat");
+	glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
+	normalMat = transpose(inverse(mat3(modelViewMat)));
+	glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, value_ptr(normalMat));
 
    //cout << "DRAWING" << endl;
 //draw tree
@@ -530,6 +526,8 @@ void keyInput(unsigned char key, int x, int y)
    los.x = cos(radians(cameraPhi)) * sin(radians(cameraTheta));
    los.y = sin(radians(cameraPhi));
    los.z = cos(radians(cameraPhi)) * -cos(radians(cameraTheta));
+
+   cout << "EYE :" << eye.x << "," << eye.y << "," << eye.z << endl;
 }
 
 // Main routine.

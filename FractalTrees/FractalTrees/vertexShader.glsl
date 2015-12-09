@@ -12,8 +12,8 @@ uniform vec4 globAmb;
 uniform mat3 normalMat;
 
 out vec4 colorsExport;
-struct Material
 
+struct Material
 {
 	vec4 ambRefl;
 	vec4 difRefl;
@@ -47,6 +47,6 @@ void main(void)
 
 	normal = normalize(normalMat * terrainNormals);
 	lightDirection = normalize(vec3(light0.coords));
-	colorsExport = globAmb*terrainFandB.ambRefl * max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
-
+	//colorsExport = globAmb*terrainFandB.ambRefl; //* max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
+	colorsExport =  max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
 }

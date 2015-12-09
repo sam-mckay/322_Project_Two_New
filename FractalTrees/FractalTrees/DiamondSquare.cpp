@@ -4,17 +4,17 @@ DiamondSquare::DiamondSquare()
 {
 }
 
-DiamondSquare::DiamondSquare(float **terrain, int mapSize, float seed)
+DiamondSquare::DiamondSquare(float **terrain, int mapSize, float seed, float height)
 {
 	std::cout << seed << std::endl;
 	genRandSeed(seed);
 	MAP_SIZE = mapSize;
 
-	float e = terrain[0][0] = getRandNum(1);
+	float e = terrain[0][0] = getRandNum(height);
 	std::cout << "TEST: " << e << std::endl;
-	terrain[MAP_SIZE-1][MAP_SIZE-1] = getRandNum(1);
-	terrain[0][MAP_SIZE-1] = getRandNum(1);
-	terrain[MAP_SIZE-1][0] = getRandNum(1);
+	terrain[MAP_SIZE-1][MAP_SIZE-1] = getRandNum(height);
+	terrain[0][MAP_SIZE-1] = getRandNum(height);
+	terrain[MAP_SIZE-1][0] = getRandNum(height);
 	std::cout << "CORNERS: 1: " << terrain[MAP_SIZE - 1][MAP_SIZE - 1] << " 2: " << terrain[0][MAP_SIZE - 1] << " 3: " << terrain[0][MAP_SIZE - 1] << " 4: " << terrain[MAP_SIZE - 1][0] << std::endl;
 	std::cout << "CONSTRUCTED"<< std::endl;
 	//printTerrain(terrain);
@@ -199,7 +199,11 @@ float::DiamondSquare::getRandNum(float range)
 
 	float randNum = ((float)rand() / (float)RAND_MAX);
 	float newRange = range*2;
-	return (randNum*newRange) + - range;
+
+	float newHeight = (randNum*newRange) + -range;
+	//newHeight = fmin(8, newHeight)
+	
+	return newHeight;
 }
 
 void::DiamondSquare::genRandSeed(float seed)

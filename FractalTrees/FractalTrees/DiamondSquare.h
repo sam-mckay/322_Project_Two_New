@@ -10,7 +10,7 @@ class DiamondSquare
 {
 public:
 	DiamondSquare();
-	DiamondSquare(float **terrain, int mapSize, float seed);
+	DiamondSquare(float **terrain, int mapSize, float seed, float height);
 	~DiamondSquare();
 
 	/** Generate Terrain
