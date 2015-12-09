@@ -1,29 +1,52 @@
 #version 420 core
 
-layout(location=0) in vec4 squareCoords;
-layout(location=1) in vec4 squareColors;
+//layout(location=0) in vec4 squareCoords;
+//layout(location=1) in vec4 squareColors;
+
+layout(location=0) in vec4 terrainCoords;
+layout(location=1) in vec3 terrainNormals;
 
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
 uniform vec4 globAmb;
+uniform mat3 normalMat;
 
 out vec4 colorsExport;
-struct Material
+struct Material
+
 {
 	vec4 ambRefl;
-	vec4 diffRefl;
-	vec4 specefl;
+	vec4 difRefl;
+	vec4 specRefl;
 	vec4 emitCols;
 	float shininess;
 };
 uniform Material terrainFandB;
 
 
+
+struct Light
+{
+	vec4 ambCols;
+	vec4 difCols;
+	vec4 specCols;
+	vec4 coords;
+};
+uniform Light light0;
+
+vec3 normal;
+vec3 lightDirection;
+
 void main(void)
 {
-   //gl_Position = projMat * modelViewMat * squareCoords;
-   //colorsExport = squareColors;
+    //gl_Position = projMat * modelViewMat * squareCoords;
+	//colorsExport = squareColors;
 
-	gl_Position = projMat * modelViewMat * squareCoords;
-	colorsExport = globAmb*terrainFandB.ambRefl;
+	gl_Position = projMat * modelViewMat * terrainCoords;
+	//colorsExport = globAmb*terrainFandB.ambRefl;
+
+	normal = normalize(normalMat * terrainNormals);
+	lightDirection = normalize(vec3(light0.coords));
+	colorsExport = globAmb*terrainFandB.ambRefl * max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
+
 }
