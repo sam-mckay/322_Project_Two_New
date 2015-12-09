@@ -1,10 +1,12 @@
 #version 420 core
 
-//layout(location=0) in vec4 squareCoords;
+///layout(location=0) in vec4 squareCoords;
 //layout(location=1) in vec4 squareColors;
+layout(location=0) in int objectID;
+layout(location=1) in vec4 terrainCoords;
+layout(location=2) in vec3 terrainNormals;
+layout(location=3) in vec2 terrainTexCoords;
 
-layout(location=0) in vec4 terrainCoords;
-layout(location=1) in vec3 terrainNormals;
 
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
@@ -12,6 +14,7 @@ uniform vec4 globAmb;
 uniform mat3 normalMat;
 
 out vec4 colorsExport;
+out vec2 texCoordsExport;
 
 struct Material
 {
@@ -47,6 +50,6 @@ void main(void)
 
 	normal = normalize(normalMat * terrainNormals);
 	lightDirection = normalize(vec3(light0.coords));
-	//colorsExport = globAmb*terrainFandB.ambRefl; //* max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
-	colorsExport =  max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
+	colorsExport = globAmb*terrainFandB.ambRefl + max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
+	texCoordsExport = terrainTexCoords;
 }

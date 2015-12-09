@@ -19,11 +19,14 @@
 
 #include"Tree.h"
 #include"DiamondSquare.h"
+#include"getbmp.h"
 
 #pragma comment(lib, "glew32.lib") 
 
 using namespace std;
 using namespace glm;
+
+
 
 double ASPECT = 1;
 
@@ -38,9 +41,10 @@ mat4 modelViewMat = mat4(1.0);
 
 struct Vertex
 {
+	float objectID;
    float coords[4];
-   //float colors[4];
    float normals[3];
+   float texcoords[2];
 };
 
 struct Matrix4x4
@@ -68,7 +72,7 @@ struct Light
 
 static const Material terrainFandB =
 {
-	vec4(1.0, 1.0, 1.0, 1.0),
+	vec4(2.0, 2.0, 2.0, 1.0),
 	vec4(1.0, 1.0, 1.0, 1.0),
 	vec4(1.0, 1.0, 1.0, 1.0),
 	vec4(0.0, 0.0, 0.0, 1.0),
@@ -91,18 +95,22 @@ static const Matrix4x4 IDENTITY_MATRIX4x4 =
 static const vec4 globAmb = glm::vec4(0.2, 0.2, 0.2, 1.0);
 static const Light light0 =
 {
-	vec4(0.0, 0.0, 0.0, 1.0),
 	vec4(0.5, 0.5, 0.5, 1.0),
+	vec4(1.0, 1.0, 1.0, 1.0),
 	vec4(1.0, 1.0, 1.0, 1.0),
 	vec4(1.0, 5.0, 0.0, 0.0)
 };
 
-//buffers
-//static enum buffer { TERRAIN_VERTICES, SQUARE_VERTICES };
-//static enum object { TERRAIN, SQUARE };
+//texturing
+static BitMapFile *grassTerrain[1];
 
-static enum buffer {SQUARE_VERTICES };
-static enum object {SQUARE };
+
+//buffers
+static enum buffer { TERRAIN_VERTICES, SQUARE_VERTICES };
+static enum object { TERRAIN, SQUARE };
+
+//static enum buffer {SQUARE_VERTICES };
+//static enum object {SQUARE };
 
 const int MAP_SIZE = 33;
 float height = 10;
@@ -137,7 +145,9 @@ static unsigned int
    projMatLoc,
    normalMatLoc,
    buffer[1],
-   vao[1];
+   vao[1],
+   texture[1],
+   grassTexLoc;
    
 // Function to read text file.
 char* readTextFile(char* aTextFile)
@@ -292,12 +302,37 @@ void lightSetup()
 	
 }
 
+void loadImages()
+{
+	//load images
+	grassTerrain[0] = getbmp("Assets/highlands.bmp");
+
+	//create texture IDs
+	glGenTextures(1, texture);
+
+	//bind grass image
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, grassTerrain[0]->sizeX, grassTerrain[0]->sizeY, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, grassTerrain[0]->data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	grassTexLoc = glGetUniformLocation(programId, "grassTex");
+	glUniform1i(grassTexLoc, 0);
+}
+
 // Initialization routine.
 void setup(void)
 {
    glClearColor(1.0, 1.0, 1.0, 0.0);
    //
    //
+   loadImages();
 
    //create Trees
    int levelVal = 0;
@@ -330,6 +365,10 @@ void setup(void)
 
    // Intialise vertex array
    int i = 0;
+   // texture init
+   //generate texture co-ordinates
+   float fTextureS = float(MAP_SIZE)*0.1f;
+   float fTextureT = float(MAP_SIZE)*0.1f;
 
    for (int z = 0; z < MAP_SIZE; z++)
    {
@@ -337,11 +376,18 @@ void setup(void)
 	   {
 			// Set the coords (1st 4 elements) and a default colour of black (2nd 4 elements)
 			glm::vec3 result = getVertexNormal(x, terrain[x][z], z, i);
-			terrainVertices[i] = { { (float)x, terrain[x][z], (float)z, 1.0 }, { result.x, result.y, result.z } };
+			terrainVertices[i] = { 0,{ (float)x, terrain[x][z], (float)z, 1.0 }, { result.x, result.y, result.z } };
 
 			// cout << "TERRAIN INITIALISED STATUS: " << terrainVertices[i].coords[0] << "," << terrainVertices[i].coords[1] << "," << terrainVertices[i].coords[2] << endl;
+			
+			float fScaleC = float(x) / float(MAP_SIZE - 1);
+			float fScaleR = float(z) / float(MAP_SIZE - 1);
+			
+			terrainVertices[i].texcoords[0] = (fTextureS*fScaleC);
+			terrainVertices[i].texcoords[1] = (fTextureT*fScaleR);
+
 			i++;
-			//
+			
 	   }
    }
 
@@ -399,11 +445,11 @@ void setup(void)
 	//TREE
    // Create VAO and VBO and associate data with vertex shader.
    
-   glGenVertexArrays(1, vao);
-   glGenBuffers(1, buffer);
+   glGenVertexArrays(2, vao);
+   glGenBuffers(2, buffer);
    /*
-   glBindVertexArray(vao[SQUARE]);
-   glBindBuffer(GL_ARRAY_BUFFER, buffer[SQUARE_VERTICES]);
+   glBindVertexArray(vao[TREE]);
+   glBindBuffer(GL_ARRAY_BUFFER, buffer[TREE_VERTICES]);
    glBufferData(GL_ARRAY_BUFFER, sizeof(tree1->squareVertices), tree1->squareVertices, GL_STATIC_DRAW);
 
    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), 0);
@@ -422,10 +468,12 @@ void setup(void)
 
    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), 0);
    glEnableVertexAttribArray(0);
-   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)sizeof(terrainVertices[0].coords));
+   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)sizeof(terrainVertices[0].objectID));
    glEnableVertexAttribArray(1);
-   //glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)sizeof(terrainVertices[0].colors));
-   //glEnableVertexAttribArray(1);
+   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)sizeof(sizeof(terrainVertices[0].objectID)+(terrainVertices[0].coords)));
+   glEnableVertexAttribArray(2);
+   glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(terrainVertices[0]), (GLvoid*)(sizeof(terrainVertices[0].objectID) + sizeof(terrainVertices[0].coords) + sizeof(terrainVertices[0].normals)));
+   glEnableVertexAttribArray(3);
    ///////////////////////////////////////
 
    lightSetup();
@@ -449,9 +497,6 @@ void setup(void)
    modelViewMatLoc = glGetUniformLocation(programId, "modelViewMat");
    glUniformMatrix4fv(modelViewMatLoc, 1, GL_FALSE, value_ptr(modelViewMat));
    ///////////////////////////////////////
-
-
-
 
 }
 

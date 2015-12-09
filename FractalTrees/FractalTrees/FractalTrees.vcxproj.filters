@@ -24,6 +24,9 @@
     <ClCompile Include="DiamondSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="getbmp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragmentShader.glsl">
@@ -39,6 +42,9 @@
     </ClInclude>
     <ClInclude Include="DiamondSquare.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="getbmp.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
