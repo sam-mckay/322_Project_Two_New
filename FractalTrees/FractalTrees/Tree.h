@@ -8,10 +8,16 @@ public:
 	Tree();
 	Tree(int MAX_LEVEL);
 	~Tree();
-	struct Vertex{
+	struct Vertex
+	{
+		int objectID;
 		float coords[4];
+		float normals[3];
+		float texcoords[2];
 		float colors[4];
 	};
+
+
 
 	int MAX_LEVEL;
 	Vertex squareVertices[16];

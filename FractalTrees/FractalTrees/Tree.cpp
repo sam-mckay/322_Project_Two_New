@@ -16,9 +16,13 @@ Tree::~Tree()
 
 struct Vertex
 {
+	int objectID;
 	float coords[4];
+	float normals[3];
+	float texcoords[2];
 	float colors[4];
 };
+
 
 float getRandAngle(float range)
 {
@@ -114,7 +118,7 @@ int::Tree::calcBranch(Vertex Branch, int previousIndex, float angle, bool right,
 
 void::Tree::drawBranch(int level, float prevPosX, float prevPosY, float height, float angle, int prevIndex)
 {
-	Vertex Branch = Vertex{ { 0, 0, 0, 0 }, { 0.55f, 0.27f, 0.075f, 1.0f } };
+	Vertex Branch = Vertex{ 1, { 0, 0, 0, 0 }, {}, {}, { 0.55f, 0.27f, 0.075f, 1.0f } };
 	cout << "LEVEL: " << level << " MAX LEVEL: " << MAX_LEVEL << endl;
 
 	int leftIndex = calcBranch(Branch, prevIndex, angle += getRandAngle(15), false, height);
@@ -159,7 +163,7 @@ void::Tree::drawBranch(int level, float prevPosX, float prevPosY, float height, 
 
 void::Tree::drawTree()
 {
-	Vertex Trunk = Vertex{ { 0, -30, 0, -15 }, { 0.55f, 0.27f, 0.075f, 1.0f } };
+	Vertex Trunk = Vertex{ 1, { 0, -30, 0, -15 }, {}, {}, { 0.55f, 0.27f, 0.075f, 1.0f } };
 	drawTrunk(Trunk);
 
 

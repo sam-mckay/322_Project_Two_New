@@ -3,18 +3,21 @@
 ///layout(location=0) in vec4 squareCoords;
 //layout(location=1) in vec4 squareColors;
 layout(location=0) in int objectID;
-layout(location=1) in vec4 terrainCoords;
+layout(location=1) in vec4 objectCoords;
 layout(location=2) in vec3 terrainNormals;
 layout(location=3) in vec2 terrainTexCoords;
-
+layout(location=4) in vec4 treeColors;
 
 uniform mat4 projMat;
 uniform mat4 modelViewMat;
 uniform vec4 globAmb;
 uniform mat3 normalMat;
+uniform int switchOn;
+
 
 out vec4 colorsExport;
 out vec2 texCoordsExport;
+out int objectIDExport;
 
 struct Material
 {
@@ -42,14 +45,20 @@ vec3 lightDirection;
 
 void main(void)
 {
-    //gl_Position = projMat * modelViewMat * squareCoords;
-	//colorsExport = squareColors;
 
-	gl_Position = projMat * modelViewMat * terrainCoords;
-	//colorsExport = globAmb*terrainFandB.ambRefl;
-
-	normal = normalize(normalMat * terrainNormals);
-	lightDirection = normalize(vec3(light0.coords));
-	colorsExport = globAmb*terrainFandB.ambRefl + max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
-	texCoordsExport = terrainTexCoords;
+	if (switchOn == 0)
+	{
+		gl_Position = projMat * modelViewMat * objectCoords;
+		normal = normalize(normalMat * terrainNormals);
+		lightDirection = normalize(vec3(light0.coords));
+		colorsExport = globAmb*terrainFandB.ambRefl + max(dot(normal, lightDirection), 0.0f) * (light0.difCols * terrainFandB.difRefl);
+		texCoordsExport = terrainTexCoords;
+		objectIDExport = objectID;
+	}
+	//else if (objectID == 1)
+	//{
+	//	gl_Position = projMat * modelViewMat * objectCoords;
+	//	colorsExport = treeColors;
+	//	objectIDExport = objectID;
+	//}
 }
