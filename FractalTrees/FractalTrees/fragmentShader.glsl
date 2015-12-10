@@ -2,7 +2,7 @@
 
 in vec4 colorsExport;
 in vec2 texCoordsExport;
-in int objectIDExport;
+//in int objectIDExport;
 uniform int switchOn;
 
 uniform sampler2D grassTex;
@@ -18,7 +18,7 @@ void main(void)
 		vec4 fieldTexColor = texture(grassTex, texCoordsExport);
 		colorsOut = colorsExport * fieldTexColor;
 	}
-	else if (objectIDExport == 1)
+	else if (switchOn == 1)
 	{
 		colorsOut = colorsExport;
 	}

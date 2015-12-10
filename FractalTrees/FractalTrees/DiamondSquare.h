@@ -1,6 +1,8 @@
 #pragma once
 #include<stdlib.h>
 #include<iostream>
+#include"glm.hpp"
+#include"List.h"
 class DiamondSquare
 	/** Diamond Square
 	*
@@ -47,12 +49,40 @@ public:
 
 
 	int MAP_SIZE;
+	List<glm::vec2> *treeLocations;
 	/** Generate Random seed*/
 	void genRandSeed(float seed);
 	/** Generate Random random number*/
 	float getRandNum(float range);
 
+	/**Print Terrain
+	*
+	* Prints all terrain values
+	*
+	*\param Terrain Pointer to Terrain the terrain 2D array
+	*
+	*/
 	void printTerrain(float **terrain);
+
+	/**Get Terrain Value
+	*
+	* Returns a specific terrain value if it exists
+	*
+	*\param Terrain Pointer to Terrain the terrain 2D array
+	*\param x The value of the terrain
+	*\param z The value of the terrain
+	*
+	*/
+	float getTerrainVal(float **terrain, int x, int z);
+
+	/**Get Random Location
+	*
+	* Returns a valid location within the terrain
+	*
+	*\param Terrain Pointer to Terrain the terrain 2D array
+	*
+	*/
+	void getRandomLocation(float **terrain);
 
 private:
 

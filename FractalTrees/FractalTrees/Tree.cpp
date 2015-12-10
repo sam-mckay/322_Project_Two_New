@@ -163,7 +163,7 @@ void::Tree::drawBranch(int level, float prevPosX, float prevPosY, float height, 
 
 void::Tree::drawTree()
 {
-	Vertex Trunk = Vertex{ 1, { 0, -30, 0, -15 }, {}, {}, { 0.55f, 0.27f, 0.075f, 1.0f } };
+	Vertex Trunk = Vertex{ 1, { 0, 0, 0, 1.0 }, {}, {}, { 0.55f, 0.27f, 0.075f, 1.0f } };
 	drawTrunk(Trunk);
 
 

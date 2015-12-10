@@ -80,6 +80,8 @@
   <ItemGroup>
     <ClCompile Include="DiamondSquare.cpp" />
     <ClCompile Include="getbmp.cpp" />
+    <ClCompile Include="List.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="squareShaderized.cpp" />
     <ClCompile Include="Tree.cpp" />
   </ItemGroup>
@@ -90,6 +92,8 @@
   <ItemGroup>
     <ClInclude Include="DiamondSquare.h" />
     <ClInclude Include="getbmp.h" />
+    <ClInclude Include="List.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="Tree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

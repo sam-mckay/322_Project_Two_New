@@ -37,7 +37,14 @@ float cameraTheta = 180;
 float cameraPhi = 0;
 
 mat4 modelViewMat = mat4(1.0);
+mat4 translationMat = mat4x4(1.0);
 
+const int MAP_SIZE = 33;
+float height = 10;
+float NUM_TREES = 20;
+Tree *tree1;
+
+DiamondSquare *terrainGen;
 
 struct Vertex
 {
@@ -110,8 +117,7 @@ static BitMapFile *grassTerrain[1];
 static enum buffer { TERRAIN_VERTICES, TREE_VERTICES };
 static enum object { TERRAIN, TREE };
 
-const int MAP_SIZE = 33;
-float height = 10;
+
 
 static Vertex terrainVertices[MAP_SIZE*MAP_SIZE] = {};
 static glm::vec3 terrainTriangleNormals[((MAP_SIZE-1)*(MAP_SIZE-1))*2] = {};
@@ -142,8 +148,9 @@ static unsigned int
    modelViewMatLoc,
    projMatLoc,
    normalMatLoc,
-   buffer[1],
-   vao[1],
+   translationMatLoc,
+   buffer[2],
+   vao[2],
    texture[1],
    grassTexLoc;
    
@@ -188,6 +195,11 @@ float convertToRad(float angle)
 //
 //
 
+vec3 moveTree(int x, int z)
+{
+	return vec3(x, terrain[x][z], z);
+}
+
 void getTriangleNormal()
 {
 
@@ -226,8 +238,6 @@ void getTriangleNormal()
 	}
 	
 }
-
-
 
 glm::vec3 getVertexNormal(int x, float y, int z, int i)
 {
@@ -343,7 +353,7 @@ void terrainSetup()
 		}
 	}
 
-	DiamondSquare *terrainGen = new DiamondSquare(terrain, MAP_SIZE, 4, height);
+	terrainGen = new DiamondSquare(terrain, MAP_SIZE, 4, height);
 	terrainGen->genTerrain(terrain, 0, 0, height, (MAP_SIZE - 1));//7
 	//terrainGen->printTerrain(terrain);
 
@@ -405,7 +415,12 @@ void setup(void)
    int levelVal = 0;
    int *level = &levelVal;
    
-   Tree *tree1 = new Tree(MAX_LEVEL);
+   tree1 = new Tree(MAX_LEVEL);
+   terrainSetup();
+   for (int i = 0; i < NUM_TREES; i++)
+   {
+	   terrainGen->getRandomLocation(terrain);
+   }
 
    tree1->drawTree();
    
@@ -417,7 +432,6 @@ void setup(void)
    glCullFace(GL_BACK);
 
    //
-   terrainSetup();
    
 
 
@@ -475,20 +489,22 @@ void setup(void)
    glBindVertexArray(vao[TREE]);
    glBindBuffer(GL_ARRAY_BUFFER, buffer[TREE_VERTICES]);
    glBufferData(GL_ARRAY_BUFFER, sizeof(tree1->squareVertices), tree1->squareVertices, GL_STATIC_DRAW);
+
+   glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), 0);
+   glEnableVertexAttribArray(5);
+   glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID)));
+   glEnableVertexAttribArray(6);
+   glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID) + sizeof(tree1->squareVertices[0].coords)));
+   glEnableVertexAttribArray(7);
+   glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID) + sizeof(tree1->squareVertices[0].coords)
+	   + sizeof(tree1->squareVertices[0].normals)));
+   glEnableVertexAttribArray(8);
+   glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices[0]), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID) + sizeof(tree1->squareVertices[0].coords)
+	   + sizeof(tree1->squareVertices[0].normals) + sizeof(tree1->squareVertices[0].texcoords)));
+   glEnableVertexAttribArray(9);
    
-   //glVertexAttribPointer(0, 1, GL_INT, GL_FALSE, sizeof(tree1->squareVertices), 0);
-   //glEnableVertexAttribArray(0);
-   //glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID)));
-   //glEnableVertexAttribArray(1);
-   //glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID) + sizeof(tree1->squareVertices[0].coords)));
-   //glEnableVertexAttribArray(2);
-   //glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID) + sizeof(tree1->squareVertices[0].coords)
-	  // + sizeof(tree1->squareVertices[0].normals)));
-   //glEnableVertexAttribArray(3);
-   //glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(tree1->squareVertices), (GLvoid*)(sizeof(tree1->squareVertices[0].objectID) + sizeof(tree1->squareVertices[0].coords)
-	  // + sizeof(tree1->squareVertices[0].normals) + sizeof(tree1->squareVertices[0].texcoords)));
-   //glEnableVertexAttribArray(4);
-   
+
+   //TREE LIST 
    
    ///////////////////////////////////////
 
@@ -531,12 +547,29 @@ void drawScene(void)
 
    //cout << "DRAWING" << endl;
 	//draw tree
-	//glBindVertexArray(vao[TREE]);
-	//glBindBuffer(GL_ARRAY_BUFFER, buffer[TREE_VERTICES]);
-	//glDrawElements(GL_LINES, 30, GL_UNSIGNED_INT, &indexBuffers);
+	glUniform1i(glGetUniformLocation(programId, "switchOn"), 1);
+	float x, z;
+	//draw all trees in list
+	for (int i = 0; i < NUM_TREES; i++)
+	{
+		x = terrainGen->treeLocations->getNode(i)->value->x;
+		z = terrainGen->treeLocations->getNode(i)->value->y;
+		float y = terrainGen->getTerrainVal(terrain, int(x), int(z));
+		
+		
+		translationMat = translate(mat4(1), vec3(x, y, z));
+		translationMatLoc = glGetUniformLocation(programId, "translationMat");
+		glUniformMatrix4fv(translationMatLoc, 1, GL_FALSE, value_ptr(translationMat));
+
+		glBindVertexArray(vao[TREE]);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer[TREE_VERTICES]);
+		glDrawElements(GL_LINES, 30, GL_UNSIGNED_INT, indexBuffers);
+	}
+
 
 	//draw terrain
 	// For each row - draw the triangle strip
+
 	glUniform1i(glGetUniformLocation(programId, "switchOn"), 0);
 	glBindVertexArray(vao[TERRAIN]);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer[TERRAIN_VERTICES]);
