@@ -49,13 +49,13 @@
     <ClInclude Include="DiamondSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="getbmp.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="List.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="getbmp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
