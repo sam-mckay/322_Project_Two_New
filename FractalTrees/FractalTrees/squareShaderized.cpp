@@ -28,7 +28,7 @@ using namespace glm;
 
 
 
-double ASPECT = 1;
+
 
 static mat4 projMat = mat4(1.0);
 
@@ -39,9 +39,12 @@ float cameraPhi = 0;
 mat4 modelViewMat = mat4(1.0);
 mat4 translationMat = mat4x4(1.0);
 
-const int MAP_SIZE = 33;
-float height = 10;
-float NUM_TREES = 20;
+static int WINDOW_WIDTH = 1280;
+static int WINDOW_HEIGHT = 720;
+double ASPECT = WINDOW_WIDTH/WINDOW_HEIGHT;
+const int MAP_SIZE = 257;
+float height = 50;
+float NUM_TREES = 50;
 Tree *tree1;
 
 DiamondSquare *terrainGen;
@@ -353,7 +356,10 @@ void terrainSetup()
 		}
 	}
 
-	terrainGen = new DiamondSquare(terrain, MAP_SIZE, 4, height);
+	//4
+	//15645
+	// 864621
+	terrainGen = new DiamondSquare(terrain, MAP_SIZE, 864621, height);
 	terrainGen->genTerrain(terrain, 0, 0, height, (MAP_SIZE - 1));//7
 	//terrainGen->printTerrain(terrain);
 
@@ -361,8 +367,8 @@ void terrainSetup()
 	int i = 0;
 	// texture init
 	//generate texture co-ordinates
-	float fTextureS = float(MAP_SIZE)*0.1f;
-	float fTextureT = float(MAP_SIZE)*0.1f;
+	float fTextureS = float(MAP_SIZE)*0.05f;
+	float fTextureT = float(MAP_SIZE)*0.05f;
 
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
@@ -406,7 +412,7 @@ void terrainSetup()
 // Initialization routine.
 void setup(void)
 {
-   glClearColor(1.0, 1.0, 1.0, 0.0);
+   glClearColor(0.58, 0.92, 0.98, 0.0);
    //
    //
    loadImages();
@@ -513,7 +519,7 @@ void setup(void)
    projMatLoc = glGetUniformLocation(programId, "projMat");
    normalMatLoc = glGetUniformLocation(programId, "normalMat");
    //projMat = ortho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
-   projMat = perspective(1.0472, (double)ASPECT, 0.1, 200.0);
+   projMat = perspective(1.0472, (double)ASPECT, 0.1, 400.0);
    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, value_ptr(projMat));
    // Obtain modelview matrix uniform location and set value.
    //Matrix4x4 modelViewMat = IDENTITY_MATRIX4x4;
@@ -521,7 +527,7 @@ void setup(void)
    //glUniformMatrix4fv(modelViewMatLoc, 1, GL_TRUE, modelViewMat.entries);
 
    //mat4 modelViewMat = mat4(1.0);
-   eye = vec3(15.3, 3.2, -1.3);
+   eye = vec3(76.9, 33.393, -40);
    //centre = vec3(0.0, 0.0, -64.0);
    los = vec3(0.0, 0.0, 1.0);
    up = vec3(0.0, 1.0, 0.0);
@@ -555,8 +561,7 @@ void drawScene(void)
 		x = terrainGen->treeLocations->getNode(i)->value->x;
 		z = terrainGen->treeLocations->getNode(i)->value->y;
 		float y = terrainGen->getTerrainVal(terrain, int(x), int(z));
-		
-		
+		//cout << "TREE HEIGHT: " << y << endl;
 		translationMat = translate(mat4(1), vec3(x, y, z));
 		translationMatLoc = glGetUniformLocation(programId, "translationMat");
 		glUniformMatrix4fv(translationMatLoc, 1, GL_FALSE, value_ptr(translationMat));
@@ -578,7 +583,7 @@ void drawScene(void)
 		glDrawElements(GL_TRIANGLE_STRIP, verticesPerStrip, GL_UNSIGNED_INT, terrainIndexData[i]);
 	}
 
-
+	
    glFlush();
    glutPostRedisplay();
 }
@@ -598,26 +603,26 @@ void keyInput(unsigned char key, int x, int y)
          exit(0);
          break;
 	  case 119://w
-		  eye.z += los.z *0.30;
-		  eye.x += los.x *0.30;
-		  eye.y += los.y *0.30;
+		  eye.z += los.z *0.90;
+		  eye.x += los.x *0.90;
+		  eye.y += los.y *0.80;
 		  break;
 	  case 115://s
-		  eye.z -= los.z *0.30;
-		  eye.x -= los.x *0.30;
-		  eye.y -= los.y *0.30;
+		  eye.z -= los.z *0.90;
+		  eye.x -= los.x *0.90;
+		  eye.y -= los.y *0.90;
 		  break;
 	  case 97://a
-		  cameraTheta -= 1;
+		  cameraTheta -= 1.5;
 		  break;
 	  case 100://d
-		  cameraTheta += 1;
+		  cameraTheta += 1.5;
 		  break;
 	  case 113://q
-		  cameraPhi += 1;
+		  cameraPhi += 1.5;
 		  break;
 	  case 101://e
-		  cameraPhi -= 1;
+		  cameraPhi -= 1.5;
 		  break;
       default:
          break;
@@ -626,7 +631,8 @@ void keyInput(unsigned char key, int x, int y)
    los.y = sin(radians(cameraPhi));
    los.z = cos(radians(cameraPhi)) * -cos(radians(cameraTheta));
 
-   cout << "EYE :" << eye.x << "," << eye.y << "," << eye.z << endl;
+   //cout << "EYE :" << eye.x << "," << eye.y << "," << eye.z << endl;
+   //cout << "LOS:" << los.x << "," << los.y << "," << los.z << endl;
 }
 
 // Main routine.
@@ -639,7 +645,7 @@ int main(int argc, char* argv[])
    //glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
    
    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
-   glutInitWindowSize(500, 500);
+   glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
    glutInitWindowPosition(100, 100); 
    glutCreateWindow("squareShaderized.cpp");
 

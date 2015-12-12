@@ -37,10 +37,8 @@ void::DiamondSquare::genTerrain(float **terrain, int x, int y, float range, int 
 	}
 	diamond(terrain, x, y, range, level);
 	square(terrain, x, y, range, level);
-
-	std::cout << "RANGE: " << range << " *100 " << int(range * 100) << " " << int(-range * 100) << " RAND EXAMPLE: " << rand()%int(range*100) + -range*100<< std::endl;
-	genTerrain(terrain,x,y,range/2, level/2);
-	
+	//std::cout << "RANGE: " << range << " *100 " << int(range * 100) << " " << int(-range * 100) << " RAND EXAMPLE: " << rand()%int(range*100) + -range*100<< std::endl;
+	genTerrain(terrain, x, y, range / 2.0f , level / 2);
 }
 
 void::DiamondSquare::diamond(float **terrain, int x, int y, float range, int level)
@@ -202,7 +200,6 @@ void DiamondSquare::getRandomLocation(float **terrain)
 		cout << "GENERATING" << endl;
 		float x = rand() % MAP_SIZE-1;
 		float z = rand() % MAP_SIZE - 1;
-		cout << "GENERATED: " << x <<","<< z << endl;
 		bool isExisting = false;
 		for (int i = 0; i < treeLocations->getLength(); i++)
 		{
@@ -214,12 +211,14 @@ void DiamondSquare::getRandomLocation(float **terrain)
 
 		}
 		//environmental constrain // max height
-		if (terrain[int(x)][int(z)] > 8)
+		if (terrain[int(x)][int(z)] > -8)
 		{
 			isGenerated = false;
+			cout << "STOPPED" << endl;
 		}
 		else if (!isExisting)
 		{
+			cout << "GENERATED: " << x << "," << z << endl;
 			isGenerated = true;
 			newLocation = new glm::vec2(x, z);
 			Node<glm::vec2> *newTreeLocation = new Node<glm::vec2>(newLocation);

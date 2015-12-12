@@ -163,13 +163,14 @@ void::Tree::drawBranch(int level, float prevPosX, float prevPosY, float height, 
 
 void::Tree::drawTree()
 {
-	Vertex Trunk = Vertex{ 1, { 0, 0, 0, 1.0 }, {}, {}, { 0.55f, 0.27f, 0.075f, 1.0f } };
-	drawTrunk(Trunk);
+	
 
 
 	//drawBranch(0, -0, -15, 15, 40, 0);
-	float height = 1.0;
+	float height = 1.2;
 	float angle = 90;
+	Vertex Trunk = Vertex{ 1, { 0, 0, 0, height*3 }, {}, {}, { 0.55f, 0.27f, 0.075f, 1.0f } };
+	drawTrunk(Trunk);
 	drawBranch(0, 0, -15 + height, height, angle, 1);
 
 	//test
